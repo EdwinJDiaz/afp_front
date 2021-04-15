@@ -58,55 +58,97 @@ class CiudadContainer extends React.Component {
         console.log(this.state.form)
     }
 
+    verificar() {
+        if (this.state.form.nombre_ciudad === null || this.state.form.nombre_ciudad === "") {
+            alert("Porfavor ingrese el nombre de la ciudad")
+            return false
+        } else if (this.state.form.id_departamento === null || this.state.form.id_departamento === "" || this.state.form.id_departamento === "Seleccione su Departamento") {
+            alert("Porfavor ingrese el nombre del departamento")
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     updateCiudad(id) {
-        const apiURL = `http://localhost:8080/ProyectoHeinsohn/webapi/ciudad/update/${id}`;
-        const requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre_ciudad: this.state.form.nombre_ciudad, departamentos: { id: this.state.form.id_departamento } })
-        };
 
-        fetch(apiURL, requestOptions)
-            .then(response => response.status)
-            .then(res => {
-                if (res === 200) {
-                    this.setState({
-                        form: {
-                            nombre_ciudad: '',
-                            id_departamento: '',
-                        }, ciudad: [],
-                        departamentos: [],
-                    })
-                    this.componentDidMount()
-                    alert("Ciudad Actualizada")
+        let verificar = this.verificar()
 
-                }
-            })
+        if (verificar === true) {
+            const apiURL = `http://localhost:8080/ProyectoHeinsohn/webapi/ciudad/update/${id}`;
+            const requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_ciudad: this.state.form.nombre_ciudad, departamentos: { id: this.state.form.id_departamento } })
+            };
+
+            fetch(apiURL, requestOptions)
+                .then(response => response.status)
+                .then(res => {
+                    if (res === 200) {
+                        this.setState({
+                            form: {
+                                nombre_ciudad: '',
+                                id_departamento: '',
+                            }, ciudad: [],
+                            departamentos: [],
+                        })
+                        this.componentDidMount()
+                        alert("Ciudad Actualizada")
+
+                    } if (res === 409) {
+                        alert("Ya existe esta ciudad registrada en el departamento")
+                    } if (res === 206) {
+                        alert("Porfavor asegurese de que no tiene campos vacios")
+                    } if (res === 417) {
+                        alert("Porfavor asegurese de que existe la ciudad")
+                    } else if (res === 406) {
+                        alert("Porfavor asegures de que existe el departamento")
+                    }
+                })
+        }
+
+
     }
 
     register() {
-        const apiURL = 'http://localhost:8080/ProyectoHeinsohn/webapi/ciudad/add'
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre_ciudad: this.state.form.nombre_ciudad, departamentos: { id: this.state.form.id_departamento } })
-        };
-        fetch(apiURL, requestOptions)
-            .then(response => response.status)
-            .then(res => {
-                if (res === 200) {
-                    this.setState({
-                        form: {
-                            nombre_ciudad: '',
-                            id_departamento: '',
-                        }, ciudad: [],
-                        departamentos: [],
-                    })
-                    this.componentDidMount()
-                    alert("Ciudad registrado")
 
-                }
-            })
+
+        let verificar = this.verificar()
+
+        if (verificar === true) {
+            const apiURL = 'http://localhost:8080/ProyectoHeinsohn/webapi/ciudad/add'
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_ciudad: this.state.form.nombre_ciudad, departamentos: { id: this.state.form.id_departamento } })
+            };
+            fetch(apiURL, requestOptions)
+                .then(response => response.status)
+                .then(res => {
+                    if (res === 200) {
+                        this.setState({
+                            form: {
+                                nombre_ciudad: '',
+                                id_departamento: '',
+                            }, ciudad: [],
+                            departamentos: [],
+                        })
+                        this.componentDidMount()
+                        alert("Ciudad registrado")
+
+                    } if (res === 409) {
+                        alert("Ya existe esta ciudad registrada en el departamento")
+                    } else if (res === 206) {
+                        alert("Porfavor asegurese de que no tiene campos vacios")
+                    } else if (res === 417) {
+                        alert("Porfavor asegurese de que existe la ciudad")
+                    } else if (res === 406) {
+                        alert("Porfavor asegures de que existe el departamento")
+                    }
+                })
+        }
+
     }
 
 
@@ -118,12 +160,12 @@ class CiudadContainer extends React.Component {
                     <div class="p-2 bd-highlight"><button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal2" onClick={() => this.update(0)}>Registrar</button></div>
 
                 </div>
-                <table>
+                <table className="table">
                     <thead>
                         <tr>
-                            <th>Ciudad</th>
-                            <th>Departamento</th>
-                            <th>Acciones</th>
+                            <th scope="col">Ciudad</th>
+                            <th scope="col">Departamento</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -184,7 +226,7 @@ class CiudadContainer extends React.Component {
 
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" onClick={() => this.updateCiudad(this.state.ciudad[0].id)} className="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                                        <button type="button" onClick={() => this.updateCiudad(this.state.ciudad[0].id)} className="btn btn-primary" >Save changes</button>
                                     </div>
                                 </form>
                             </div>
@@ -231,7 +273,7 @@ class CiudadContainer extends React.Component {
 
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" onClick={() => this.register()} className="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                                        <button type="button" onClick={() => this.register()} className="btn btn-primary" >Save changes</button>
                                     </div>
                                 </form>
                             </div>

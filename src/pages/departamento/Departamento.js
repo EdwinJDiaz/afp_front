@@ -54,8 +54,22 @@ class DepartamentoContainer extends React.Component {
 
     }
 
+
+    verificar() {
+        if (this.state.form.nombre_departamento === null || this.state.form.nombre_departamento === "") {
+            alert("Porfavor ingrese el nombre del departamento")
+            return false;
+        }else {
+            return true;
+        }
+    }
+
     updateDepartamento(id) {
-        const apiURL = `http://localhost:8080/ProyectoHeinsohn/webapi/departamento/update/${id}`;
+
+        let verificar = this.verificar();
+
+        if (verificar === true) {
+            const apiURL = `http://localhost:8080/ProyectoHeinsohn/webapi/departamento/update/${id}`;
         const requestOptions = {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -75,33 +89,55 @@ class DepartamentoContainer extends React.Component {
                     this.componentDidMount()
                     alert("Departamento Actualizado")
 
+                }else if (res === 409) {
+                    alert("Ya existe el departamento")
+                }else if (res ===206){
+                    alert("Porfavor ingrese el nombre del departamento")
+                }else if (res ===400){
+                    alert("Porfavor asegurese que existe el departamento")
                 }
             })
+        }
+
+
+
+        
     }
 
 
     register() {
-        const apiURL = 'http://localhost:8080/ProyectoHeinsohn/webapi/departamento/add'
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre_departamento: this.state.form.nombre_departamento })
-        };
-        fetch(apiURL, requestOptions)
-            .then(response => response.status)
-            .then(res => {
-                if (res === 200) {
-                    this.setState({
-                        form: {
-                            nombre_departamento: '',
-                        }, ciudades: [],
-                        departamento: [],
-                    })
-                    this.componentDidMount()
-                    alert("Departamento registrado")
 
-                }
-            })
+        let verificar = this.verificar()
+
+        if (verificar === true){
+            const apiURL = 'http://localhost:8080/ProyectoHeinsohn/webapi/departamento/add'
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_departamento: this.state.form.nombre_departamento })
+            };
+            fetch(apiURL, requestOptions)
+                .then(response => response.status)
+                .then(res => {
+                    if (res === 200) {
+                        this.setState({
+                            form: {
+                                nombre_departamento: '',
+                            }, ciudades: [],
+                            departamento: [],
+                        })
+                        this.componentDidMount()
+                        alert("Departamento registrado")
+    
+                    }else if (res === 409) {
+                        alert("Ya existe el departamento")
+                    }else if (res ===206){
+                        alert("Porfavor ingrese el nombre del departamento")
+                    }
+                })
+        }
+
+        
 
     }
 
@@ -115,11 +151,12 @@ class DepartamentoContainer extends React.Component {
 
                 </div>
 
-                <table>
+                <table className="table">
                     <thead>
                         <tr>
 
-                            <th>Departamento</th>
+                            <th scope="col">Departamento</th>
+                            <th scope="col">Acciones</th>
 
                         </tr>
                     </thead>
@@ -171,7 +208,7 @@ class DepartamentoContainer extends React.Component {
 
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" onClick={() => this.updateDepartamento(this.state.departamento[0].id)} className="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                                        <button type="button" onClick={() => this.updateDepartamento(this.state.departamento[0].id)} className="btn btn-primary" >Save changes</button>
                                     </div>
                                 </form>
                             </div>
@@ -208,7 +245,7 @@ class DepartamentoContainer extends React.Component {
 
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" onClick={() => this.register()} className="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                                        <button type="button" onClick={() => this.register()} className="btn btn-primary" >Save changes</button>
                                     </div>
                                 </form>
                             </div>
