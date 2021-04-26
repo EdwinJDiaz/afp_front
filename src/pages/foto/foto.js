@@ -69,17 +69,11 @@ function App() {
 
 
     const insertar=async()=>{
-        
-        
-
         const f = new FormData();
         f.append('image', archivos)
         
         axios.post('http://localhost:8080/proyecto/webapi/documento/preferencias',f)
-        .then(res => console.log(res))
-        
-
-                
+        .then(res => console.log(res))                
     }
 
 

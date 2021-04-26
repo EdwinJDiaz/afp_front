@@ -1,7 +1,9 @@
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import MaterialTable from 'material-table';
-import { Modal, TextField } from "@material-ui/core";
+import { Modal, TextField, CircularProgress } from "@material-ui/core";
+import Swal from 'sweetalert2'
+
 
 class CiudadContainer extends React.Component {
     constructor(props) {
@@ -18,6 +20,7 @@ class CiudadContainer extends React.Component {
             },
             open: false,
             close: true,
+            cargado: false,
 
         }
     }
@@ -26,22 +29,37 @@ class CiudadContainer extends React.Component {
         const apiURL = "http://localhost:8080/proyecto/webapi/ciudad/get"
         fetch(apiURL)
             .then(response => response.json())
-            .then(data => this.setState({ ciudades: data }))
+            .then(data => this.setState({ ciudades: data, cargado: true }))
 
     }
 
     remove(id) {
-        console.log(id);
-        const ApiURL = (`http://localhost:8080/proyecto/webapi/ciudad/delete/${id}`)
-        fetch(ApiURL, { method: 'DELETE' })
-            .then(response => response.status)
-            .then(res => {
-                if (res === 200) {
-                    let data = this.state.ciudades.filter(c => c.id !== id);
-                    this.setState({ ciudades: data })
-                    alert("Ciudad eliminada")
+        Swal.fire({
+            title: '¿Seguro desea eliminar?',
+            showCancelButton: true,
+            confirmButtonText: `Eliminar`,
+            cancelButtonText: `Cancelar`,
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    const ApiURL = (`http://localhost:8080/proyecto/webapi/ciudad/delete/${id}`)
+                    fetch(ApiURL, { method: 'DELETE' })
+                        .then(response => response.status)
+                        .then(res => {
+                            if (res === 200) {
+                                let data = this.state.ciudades.filter(c => c.id !== id);
+                                this.setState({ ciudades: data })
+                                Swal.fire({
+                                    position: 'center',
+                                    icon: 'success',
+                                    title: 'Se elimino correctamente',
+                                    timer: 1000
+                                })
+                            }
+                        })
                 }
             })
+
     }
 
     update(ciudad) {
@@ -85,10 +103,22 @@ class CiudadContainer extends React.Component {
 
     verificar() {
         if (this.state.form.nombre_ciudad === null || this.state.form.nombre_ciudad === "") {
-            alert("Porfavor ingrese el nombre de la ciudad")
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: 'Porfavor ingrese el nombre de la ciudad',
+                timer: 2000
+            })
+
             return false
         } else if (this.state.form.id_departamento === null || this.state.form.id_departamento === "" || this.state.form.id_departamento === "Seleccione su Departamento") {
-            alert("Porfavor ingrese el nombre del departamento")
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: 'Porfavor ingrese el nombre del departamento',
+                timer: 2000,
+                target: document.getElementById('Modal')
+            })
             return false;
         } else {
             return true;
@@ -120,16 +150,50 @@ class CiudadContainer extends React.Component {
                             departamentos: [],
                         })
                         this.componentDidMount()
-                        alert("Ciudad Actualizada")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: 'Se Actualizo correctamente',
+                            timer: 1000,
+                            target: document.getElementById('Modal')
+                        })
 
                     } if (res === 409) {
-                        alert("Ya existe esta ciudad registrada en el departamento")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Ya existe esta ciudad registrada en el departamento',
+                            timer: 2000,
+                            target: document.getElementById('Modal')
+                        })
+
                     } if (res === 206) {
-                        alert("Porfavor asegurese de que no tiene campos vacios")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Porfavor asegurese de que no tiene campos vacios',
+                            timer: 2000,
+                            target: document.getElementById('Modal')
+                        })
+
                     } if (res === 417) {
-                        alert("Porfavor asegurese de que existe la ciudad")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Porfavor asegurese de que no existe la ciudad en el departamento seleccionado',
+                            timer: 2000,
+                            target: document.getElementById('Modal')
+                        })
+
                     } else if (res === 406) {
-                        alert("Porfavor asegures de que existe el departamento")
+
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Porfavor asegurese de que existe el departamento',
+                            timer: 2000,
+                            target: document.getElementById('Modal')
+                        })
                     }
                 })
         }
@@ -161,16 +225,41 @@ class CiudadContainer extends React.Component {
                             departamentos: [],
                         })
                         this.componentDidMount()
-                        alert("Ciudad registrado")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: 'Se Registro correctamente',
+                            timer: 1000
+                        })
 
                     } if (res === 409) {
-                        alert("Ya existe esta ciudad registrada en el departamento")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Ya existe esta ciudad registrada en el departamento',
+                            timer: 2000
+                        })
                     } else if (res === 206) {
-                        alert("Porfavor asegurese de que no tiene campos vacios")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Porfavor asegurese de que no tiene campos vacios',
+                            timer: 2000
+                        })
                     } else if (res === 417) {
-                        alert("Porfavor asegurese de que existe la ciudad")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Porfavor asegurese de que existe la ciudad',
+                            timer: 2000
+                        })
                     } else if (res === 406) {
-                        alert("Porfavor asegures de que existe el departamento")
+                        Swal.fire({
+                            position: 'center',
+                            icon: 'warning',
+                            title: 'Porfavor asegures de que existe el departamento',
+                            timer: 2000
+                        })
                     }
                 })
         }
@@ -186,151 +275,171 @@ class CiudadContainer extends React.Component {
 
 
             <div className="container">
+
+
                 <Navbar />
 
-
-                <div style={{ maxWidth: '100%' }}>
-                    <MaterialTable
-
-                        columns={[
-                            { title: 'Ciudad', field: 'nombre_ciudad' },
-                            { title: 'Departamento', field: 'departamentos.nombre_departamento' }
-
-                        ]}
-                        data={this.state.ciudades}
-
-                        title="Ciudades"
-                        actions={[
-                            {
-                                icon: 'delete',
-                                tooltip: 'Eliminar',
-                                onClick: (event, rowdata) => this.remove(rowdata.id)
-                            },
-                            {
-                                icon: 'edit',
-                                tooltip: 'Editar',
-                                onClick: (event, rowdata) => this.update(rowdata)
-                            }
-                        ]}
-
-                        options={{
-                            actionsColumnIndex: -1
-                        }}
-                    />
-                </div>
-
-
-
-
+                <hr></hr>
 
                 <br></br>
-                <div class="d-flex flex-row-reverse bd-highlight">
-                    <div class="p-2 bd-highlight"><button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal2" onClick={() => this.update(0)}>Registrar</button></div>
-
-                </div>
 
 
-                <Modal
-                    open={this.state.open}
-                    close={this.state.close}
-                    onClose={this.handleClose}
-                    aria-labelledby="simple-modal-title"
-                    aria-describedby="simple-modal-description">
+                {!this.state.cargado &&
 
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title" id="exampleModalLabel">Actualizar</h5>
-                                <button type="button" className="btn-close" onClick={this.handleClose} aria-label="Close"></button>
-                            </div>
-                            <div className="modal-body">
-                                <form>
+                    <div className="d-flex justify-content-center">
+                        <CircularProgress color="secondary" />
+                    </div>
+                }
+                {this.state.cargado &&
+                    <div>
 
-                                    <div class="mb-3">
-                                        <label for="nombre_departamento" class="form-label">Ingrese el nombre de la ciudad</label>
-                                        {this.state.ciudad.map(ciudad =>
-                                            <TextField type="text" className="form-control" id="nombre_ciudad" name="nombre_ciudad" aria-describedby="emailHelp" placeholder={"Ciudad " + ciudad.nombre_ciudad} onChange={this.handleChange} ></TextField>
-                                        )}
 
-                                        <div className="mb-3">
-                                            <label for="select-departament" class="form-label">Ingrese su Departamento</label>
-                                            <select class="form-select" aria-label="Default select example" value={this.state.id_departamento} onChange={this.handleChange} name="id_departamento" id="id_departamento">
-                                                <option selected >Seleccione su Departamento</option>
-                                                {this.state.departamentos.map(departamento =>
-                                                    <option key={departamento.id} value={departamento.id} id="id_departamento">{departamento.nombre_departamento}</option>
+                        <div style={{ maxWidth: '100%' }}>
+                            <MaterialTable
+
+                                columns={[
+
+                                    { title: 'Departamento', field: 'departamentos.nombre_departamento' },
+                                    { title: 'Ciudad', field: 'nombre_ciudad' },
+
+                                ]}
+                                data={this.state.ciudades}
+
+                                title="Ciudades"
+                                actions={[
+                                    {
+                                        icon: 'delete',
+                                        tooltip: 'Eliminar',
+                                        onClick: (event, rowdata) => this.remove(rowdata.id)
+                                    },
+                                    {
+                                        icon: 'edit',
+                                        tooltip: 'Editar',
+                                        onClick: (event, rowdata) => this.update(rowdata)
+                                    }
+                                ]}
+
+                                options={{
+                                    actionsColumnIndex: -1
+                                }}
+                            />
+                        </div>
+
+
+
+
+
+                        <br></br>
+                        <div class="d-flex flex-row-reverse bd-highlight">
+                            <div class="p-2 bd-highlight"><button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal2" onClick={() => this.update(0)}>Registrar</button></div>
+
+                        </div>
+
+
+                        <Modal
+                            open={this.state.open}
+                            close={this.state.close}
+                            onClose={this.handleClose}
+                            aria-labelledby="simple-modal-title"
+                            aria-describedby="simple-modal-description"
+                            id="Modal"
+                            name="Modal">
+
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title" id="exampleModalLabel">Actualizar</h5>
+                                        <button type="button" className="btn-close" onClick={this.handleClose} aria-label="Close"></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <form>
+
+                                            <div class="mb-3">
+                                                <label for="nombre_departamento" class="form-label">Ingrese el nombre de la ciudad</label>
+                                                {this.state.ciudad.map(ciudad =>
+                                                    <TextField type="text" className="form-control" id="nombre_ciudad" name="nombre_ciudad" aria-describedby="emailHelp" placeholder={"Ciudad " + ciudad.nombre_ciudad} onChange={this.handleChange} ></TextField>
                                                 )}
 
-                                            </select>
-                                        </div>
+                                                <div className="mb-3">
+                                                    <label for="select-departament" class="form-label">Ingrese su Departamento</label>
+                                                    <select class="form-select" aria-label="Default select example" value={this.state.id_departamento} onChange={this.handleChange} name="id_departamento" id="id_departamento">
+                                                        <option selected >Seleccione su Departamento</option>
+                                                        {this.state.departamentos.map(departamento =>
+                                                            <option key={departamento.id} value={departamento.id} id="id_departamento">{departamento.nombre_departamento}</option>
+                                                        )}
+
+                                                    </select>
+                                                </div>
 
 
 
 
+                                            </div>
+
+
+
+
+
+
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-secondary" onClick={this.handleClose}>Close</button>
+                                                <button type="button" onClick={() => this.updateCiudad(this.state.ciudad[0].id)} className="btn btn-primary" >Save changes</button>
+                                            </div>
+                                        </form>
                                     </div>
+                                </div>
+                            </div>
+
+                        </Modal>
 
 
-
-
-
-
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-secondary" onClick={this.handleClose}>Close</button>
-                                        <button type="button" onClick={() => this.updateCiudad(this.state.ciudad[0].id)} className="btn btn-primary" >Save changes</button>
+                        <div className="modal fade" id="exampleModal2" tabIndex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title" id="exampleModalLabel">Registrar</h5>
+                                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                </form>
+                                    <div className="modal-body">
+                                        <form>
+
+                                            <div class="mb-3">
+                                                <label for="nombre_departamento" class="form-label">Ingrese el nombre de la ciudad</label>
+
+                                                <input type="text" class="form-control" id="nombre_ciudad" name="nombre_ciudad" aria-describedby="emailHelp" placeholder="Ingrese el nombre de la ciudad" onChange={this.handleChange} ></input>
+
+
+                                                <div className="mb-3">
+                                                    <label for="select-departament" class="form-label">Ingrese su Departamento</label>
+                                                    <select class="form-select" aria-label="Default select example" value={this.state.id_departamento} onChange={this.handleChange} name="id_departamento" id="id_departamento">
+                                                        <option selected >Seleccione su Departamento</option>
+                                                        {this.state.departamentos.map(departamento =>
+                                                            <option key={departamento.id} value={departamento.id} id="id_departamento">{departamento.nombre_departamento}</option>
+                                                        )}
+
+                                                    </select>
+                                                </div>
+
+
+
+
+                                            </div>
+
+
+
+
+
+
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="button" onClick={() => this.register()} className="btn btn-primary" >Save changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                </Modal>
-
-
-                <div className="modal fade" id="exampleModal2" tabIndex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title" id="exampleModalLabel">Registrar</h5>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div className="modal-body">
-                                <form>
-
-                                    <div class="mb-3">
-                                        <label for="nombre_departamento" class="form-label">Ingrese el nombre de la ciudad</label>
-
-                                        <input type="text" class="form-control" id="nombre_ciudad" name="nombre_ciudad" aria-describedby="emailHelp" placeholder="Ingrese el nombre de la ciudad" onChange={this.handleChange} ></input>
-
-
-                                        <div className="mb-3">
-                                            <label for="select-departament" class="form-label">Ingrese su Departamento</label>
-                                            <select class="form-select" aria-label="Default select example" value={this.state.id_departamento} onChange={this.handleChange} name="id_departamento" id="id_departamento">
-                                                <option selected >Seleccione su Departamento</option>
-                                                {this.state.departamentos.map(departamento =>
-                                                    <option key={departamento.id} value={departamento.id} id="id_departamento">{departamento.nombre_departamento}</option>
-                                                )}
-
-                                            </select>
-                                        </div>
-
-
-
-
-                                    </div>
-
-
-
-
-
-
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" onClick={() => this.register()} className="btn btn-primary" >Save changes</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    </div>}
             </div>
         )
     }
